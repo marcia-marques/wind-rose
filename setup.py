@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='wind-rose',
+    name='windroses',
     version='0.0.1',
     description='Plot wind roses',
     author='Marcia Marques',
