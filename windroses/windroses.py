@@ -426,3 +426,55 @@ def wind_rose_pollution(df, var, ws, wd, var_label, nbins=16, xticks=8, plot=111
         ax.set_rlabel_position(yaxis)
 
     return
+
+
+def wind_rose_pollution_season(df, var, ws, wd, var_label, nbins=16, xticks=8, z_values=None,
+                               wind=True, south=True, yaxis=False, lims=False):
+    """
+    Return a wind rose for pollutant concentration for each season.
+
+    Parameters
+    ----------
+    df : DataFrame
+        The pandas DataFrame holding the data.
+    var : str
+        Pollutant column name.
+    ws : str
+        Wind speed column name.
+    wd : str
+        Wind direction column name.
+    var_label : str
+        Pollutant label.
+    nbins : int, optional
+        Number of bins to plot, default is 16.
+    xticks : int {4, 8, 16} , optional
+        Number of xticks, default is 8.
+    z_values : list-like, optional, default is None
+        Min and max values for z values (colorbar).
+    wind : bool, optional
+        Show cardinal directions (i.e. ['N', 'NE', ...]), defaults is True.
+    south : bool, optional, default is True
+        If True, seasons are calculated to Southern Hemisphere, otherwise Northern Hemisphere.
+    yaxis : int or flot, optional
+        Position of y-axis (0 - 360), default is False.
+    lims : list-like, optional, default is False.
+        Wind speed ranges.
+    """
+
+    # create a new column season
+    if south:
+        df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Summer', 2: 'Autumn', 3: 'Winter', 4: 'Spring'})
+    else:
+        df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Winter', 2: 'Spring', 3: 'Summer', 4: 'Autumn'})
+
+    # windroses
+    for plot, season in zip([221, 222, 223, 224], ['Summer', 'Autumn', 'Winter', 'Spring']):
+        df_season = df.copy()
+        df_season = df_season.loc[df_season['season'] == season]
+        wind_rose_pollution(df_season, var, ws, wd, var_label, nbins=nbins, xticks=xticks, plot=plot,
+                            z_values=z_values, wind=wind, yaxis=yaxis, lims=lims)
+        plt.title(season + '\n', fontsize=14, fontweight='bold')
+
+    plt.tight_layout()
+
+    return
