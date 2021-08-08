@@ -6,8 +6,5 @@ windroses/__pycache__
 # virtual environment
 .venv
 
-# example data
-data
-
 # testing plts
 plots.py
