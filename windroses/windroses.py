@@ -121,8 +121,6 @@ def wind_rose_season(df, wd, nbins=16, xticks=8, wind=True, south=True, ylim=Fal
         df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Winter', 2: 'Spring', 3: 'Summer', 4: 'Autumn'})
 
     # windroses
-    fig = plt.figure(figsize=(9, 9))
-
     for plot, season in zip([221, 222, 223, 224], ['Summer', 'Autumn', 'Winter', 'Spring']):
         df_season = df.copy()
         df_season = df_season.loc[df_season['season'] == season]
@@ -293,8 +291,6 @@ def wind_rose_speed_season(df, ws, wd, nbins=16, xticks=8, wind=True, south=True
         df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Winter', 2: 'Spring', 3: 'Summer', 4: 'Autumn'})
 
     # windroses
-    fig = plt.figure(figsize=(9, 9))
-
     for plot, season in zip([221, 222, 223, 224], ['Summer', 'Autumn', 'Winter', 'Spring']):
         df_season = df.copy()
         df_season = df_season.loc[df_season['season'] == season]
