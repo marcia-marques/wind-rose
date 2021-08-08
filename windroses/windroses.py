@@ -136,7 +136,7 @@ def wind_rose_season(df, wd, nbins=16, xticks=8, wind=True, south=True, ylim=Fal
 
 
 def wind_rose_speed(df, ws, wd, nbins=16, xticks=8, plot=111, wind=True, ylim=False, yaxis=False, yticks=False,
-                   lims=False, loc='lower left'):
+                    lims=False, loc='lower left'):
     """
     Return a wind rose with wind speed ranges.
 
@@ -213,7 +213,7 @@ def wind_rose_speed(df, ws, wd, nbins=16, xticks=8, plot=111, wind=True, ylim=Fa
                np.sum(ns[:, 0:len(lims) - 1 - i], axis=1),
                width=2 * np.pi / nbins,
                label="{:.1f}".format(lims[len(lims) - 1 - i - 1]) + ' - ' +
-               "{:.1f}".format(lims[len(lims) - 1 - i]))
+                     "{:.1f}".format(lims[len(lims) - 1 - i]))
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
     plt.grid(axis='both', which='major', linestyle='--')
@@ -249,5 +249,59 @@ def wind_rose_speed(df, ws, wd, nbins=16, xticks=8, plot=111, wind=True, ylim=Fa
     # legend
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(reversed(handles), reversed(labels), loc=loc)
+
+    return
+
+
+def wind_rose_speed_season(df, ws, wd, nbins=16, xticks=8, wind=True, south=True, ylim=False, yaxis=False, yticks=False,
+                           lims=False, loc='lower left'):
+    """
+    Return a wind rose with wind speed ranges for each season.
+
+    Parameters
+    ----------
+    df : DataFrame
+        The pandas DataFrame holding the data.
+    ws : str
+        Wind speed column name.
+    wd : str
+        Wind direction column name.
+    nbins : int, optional
+        Number of bins to plot, default is 16.
+    xticks : int {4, 8, 16} , optional
+        Number of xticks, default is 8.
+    wind : bool, optional
+        Show cardinal directions (i.e. ['N', 'NE', ...]), defaults is True.
+    south : bool, optional, default is True
+        If True, seasons are calculated to Southern Hemisphere, otherwise Northern Hemisphere.
+    ylim : int or float, optional
+        Maximum limit for y-axis, default is False.
+    yaxis : int or flot, optional
+        Position of y-axis (0 - 360), default is False.
+    yticks : list-like, optional
+        List of yticks, default is False.
+    lims : list-like, optional, default is False.
+        Wind speed ranges.
+    loc : int or str, optional, default is 'lower left'
+        Legend location.
+    """
+
+    # create a new column season
+    if south:
+        df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Summer', 2: 'Autumn', 3: 'Winter', 4: 'Spring'})
+    else:
+        df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Winter', 2: 'Spring', 3: 'Summer', 4: 'Autumn'})
+
+    # windroses
+    fig = plt.figure(figsize=(9, 9))
+
+    for plot, season in zip([221, 222, 223, 224], ['Summer', 'Autumn', 'Winter', 'Spring']):
+        df_season = df.copy()
+        df_season = df_season.loc[df_season['season'] == season]
+        wind_rose_speed(df_season, ws, wd, nbins=nbins, xticks=xticks, wind=wind, plot=plot,
+                        ylim=ylim, yaxis=yaxis, yticks=yticks, lims=lims, loc=loc)
+        plt.title(season + '\n', fontsize=14, fontweight='bold')
+
+    plt.tight_layout()
 
     return
