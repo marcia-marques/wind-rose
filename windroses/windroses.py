@@ -62,11 +62,11 @@ def wind_rose(df, wd, nbins=16, wind=True, xticks=8, plot=111,
     if xticks == 4:
         ax.set_xticks([radians(x) for x in np.arange(0, 360, 360 / xticks)])
         if wind:
-            ax.set_xticklabels([x for x in labels[::4]]);
+            ax.set_xticklabels([x for x in labels[::4]])
     elif xticks == 8:
         ax.set_xticks([radians(x) for x in np.arange(0, 360, 360 / xticks)])
         if wind:
-            ax.set_xticklabels([x for x in labels[::2]]);
+            ax.set_xticklabels([x for x in labels[::2]])
     elif xticks == 16:
         ax.set_xticks([radians(x) for x in np.arange(0, 360, 360 / xticks)])
         if wind:

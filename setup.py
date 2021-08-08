@@ -11,5 +11,7 @@ setup(
     install_requires=[
         "numpy >= 1.21",
         "matplotlib >= 3.2",
+        "pandas >= 1.3.1",
+        "seaborn >= 0.11.1",
     ],
     )

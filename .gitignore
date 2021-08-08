@@ -1,4 +1,5 @@
 .idea
+.ipynb_checkpoints/
 
 # pycache
 windroses/__pycache__
@@ -8,3 +9,4 @@ windroses/__pycache__
 
 # testing plts
 plots.py
+plots.ipynb
