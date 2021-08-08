@@ -1,6 +1,7 @@
 import numpy as np
 from math import radians
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 
 def wind_rose(df, wd, nbins=16, xticks=8, plot=111, wind=True, ylim=False, yaxis=False, yticks=False):
@@ -299,5 +300,129 @@ def wind_rose_speed_season(df, ws, wd, nbins=16, xticks=8, wind=True, south=True
         plt.title(season + '\n', fontsize=14, fontweight='bold')
 
     plt.tight_layout()
+
+    return
+
+
+def wind_rose_pollution(df, var, ws, wd, var_label, nbins=16, xticks=8, plot=111, z_values=None,
+                        wind=True, yaxis=False, lims=False):
+    """
+    Return a wind rose for pollutant concentration.
+
+    Parameters
+    ----------
+    df : DataFrame
+        The pandas DataFrame holding the data.
+    var : str
+        Pollutant column name.
+    ws : str
+        Wind speed column name.
+    wd : str
+        Wind direction column name.
+    var_label : str
+        Pollutant label.
+    nbins : int, optional
+        Number of bins to plot, default is 16.
+    xticks : int {4, 8, 16} , optional
+        Number of xticks, default is 8.
+    plot : int, optional
+        nrows, ncols, index to define subplots, default is 111,
+        it is used to plot seasonal wind roses.
+    z_values : list-like, optional, default is None
+        Min and max values for z values (colorbar).
+    wind : bool, optional
+        Show cardinal directions (i.e. ['N', 'NE', ...]), defaults is True.
+    yaxis : int or flot, optional
+        Position of y-axis (0 - 360), default is False.
+    lims : list-like, optional, default is False.
+        Wind speed ranges.
+    """
+
+    labels = ['N', 'NNE', 'NE', 'ENE', 'E', 'SSE', 'SE', 'SSE',
+              'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+
+    # adjust wind direction (align North)
+    x = 360 - (180 / nbins)
+    w_dir = np.zeros(len(df[wd]))
+    for i in range(len(df[wd])):
+        if x <= df[wd][i] <= 360:
+            w_dir[i] = df[wd][i] - 360
+        else:
+            w_dir[i] = df[wd][i]
+    df['dir'] = w_dir
+
+    # bins
+    bins = np.arange(- (180 / nbins), 360 + (180 / nbins), 360 / nbins)
+
+    # default wind speed limits
+    if not lims:
+        lims = np.linspace(df[ws].min(), df[ws].max(), num=5, endpoint=False)
+        lims = np.append(lims, df.ws.max())
+
+    # matrix to store concentration values for all ranges
+    ns = np.zeros((len(lims) - 1, len(bins) - 1))
+
+    # histogram
+    # wind speed ranges
+    for i in range(len(lims) - 1):
+        ds = df.copy()
+        if i == len(lims) - 2:
+            ds = ds[(ds[ws] >= lims[i]) & (ds[ws] <= lims[i + 1])]
+        else:
+            ds = ds[(ds[ws] >= lims[i]) & (ds[ws] < lims[i + 1])]
+
+        # wind direction bins
+        for j in range(len(bins) - 1):
+            ds = ds[(ds['dir'] >= bins[j]) & (ds['dir'] < bins[j + 1])]
+            ns[i, j] = ds[var].mean()
+            ds = df.copy()
+            if i == len(lims) - 2:
+                ds = ds[(ds[ws] >= lims[i]) & (ds[ws] <= lims[i + 1])]
+            else:
+                ds = ds[(ds[ws] >= lims[i]) & (ds[ws] < lims[i + 1])]
+
+    # windrose
+    ax = plt.subplot(plot, projection='polar')
+    if z_values:
+        cf = ax.pcolormesh(np.radians(bins),
+                           lims, ns,
+                           shading='flat', zorder=0,
+                           vmin=z_values[0],
+                           vmax=z_values[1])
+    else:
+        cf = ax.pcolormesh(np.radians(bins),
+                           lims, ns,
+                           shading='flat', zorder=0)
+    ax.set_theta_zero_location('N')
+    ax.set_theta_direction(-1)
+    cbar = plt.colorbar(cf, ax=ax, pad=0.1, shrink=0.75)
+    cbar.set_label(var_label)
+    ax.set_yticks(lims)
+    bbox = dict(boxstyle="round", ec=None, fc="white", alpha=0.5)
+    plt.setp(ax.get_yticklabels(), bbox=bbox)
+    ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.1f'))
+    ax.set_xticks(np.radians(np.arange((180 / nbins), 360 + (180 / nbins), 360 / nbins)), minor=True)
+    plt.grid(axis='x', which='minor', linestyle='-', linewidth=0.25)
+    plt.grid(axis='y', which='major', linestyle='-', linewidth=0.55)
+
+    # categorical xticklabels
+    if xticks == 4:
+        ax.set_xticks([radians(x) for x in np.arange(0, 360, 360 / xticks)])
+        if wind:
+            ax.set_xticklabels([x for x in labels[::4]])
+    elif xticks == 8:
+        ax.set_xticks([radians(x) for x in np.arange(0, 360, 360 / xticks)])
+        if wind:
+            ax.set_xticklabels([x for x in labels[::2]])
+    elif xticks == 16:
+        ax.set_xticks([radians(x) for x in np.arange(0, 360, 360 / xticks)])
+        if wind:
+            ax.set_xticklabels(labels)
+    else:
+        raise Exception("xticks should be 4, 8, or 16")
+
+    # y axis position
+    if yaxis:
+        ax.set_rlabel_position(yaxis)
 
     return
