@@ -3,8 +3,7 @@ from math import radians
 import matplotlib.pyplot as plt
 
 
-def wind_rose(df, wd, nbins=16, wind=True, xticks=8, plot=111,
-              ylim=False, yaxis=False, yticks=False):
+def wind_rose(df, wd, nbins=16, xticks=8, plot=111, wind=True, ylim=False, yaxis=False, yticks=False):
     """
     Return a wind rose.
 
@@ -18,11 +17,11 @@ def wind_rose(df, wd, nbins=16, wind=True, xticks=8, plot=111,
         Number of bins to plot, default is 16.
     xticks : int {4, 8, 16} , optional
         Number of xticks, default is 8.
-    wind : bool, optional
-        Show cardinal directions (i.e. ['N', 'NE', ...]), defaults is True.
     plot : int, optional
         nrows, ncols, index to define subplots, default is 111,
         it is used to plot seasonal wind roses.
+    wind : bool, optional
+        Show cardinal directions (i.e. ['N', 'NE', ...]), defaults is True.
     ylim : int or float, optional
         Maximum limit for y-axis, default is False.
     yaxis : int or flot, optional
@@ -85,5 +84,52 @@ def wind_rose(df, wd, nbins=16, wind=True, xticks=8, plot=111,
     # y axis ticks
     if yticks:
         ax.set_yticks(yticks)
+
+    return
+
+
+def wind_rose_season(df, wd, nbins=16, xticks=8, wind=True, south=True, ylim=False, yaxis=False, yticks=False):
+    """
+    Return a wind rose for each season.
+
+    Parameters
+    ----------
+    df : DataFrame
+        The pandas DataFrame holding the data.
+    wd : str
+        Wind direction column name.
+    nbins : int, optional
+        Number of bins to plot, default is 16.
+    xticks : int {4, 8, 16} , optional
+        Number of xticks, default is 8.
+    wind : bool, optional
+        Show cardinal directions (i.e. ['N', 'NE', ...]), defaults is True.
+    south : bool, optional, default is True
+        If True, seasons are calculated to Southern Hemisphere, otherwise Northern Hemisphere.
+    ylim : int or float, optional
+        Maximum limit for y-axis, default is False.
+    yaxis : int or flot, optional
+        Position of y-axis (0 - 360), default is False.
+    yticks : list-like, optional
+        List of yticks, default is False.
+    """
+
+    # create a new column season
+    if south:
+        df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Summer', 2: 'Autumn', 3: 'Winter', 4: 'Spring'})
+    else:
+        df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Winter', 2: 'Spring', 3: 'Summer', 4: 'Autumn'})
+
+    # windroses
+    fig = plt.figure(figsize=(9, 9))
+
+    for plot, season in zip([221, 222, 223, 224], ['Summer', 'Autumn', 'Winter', 'Spring']):
+        df_season = df.copy()
+        df_season = df_season.loc[df_season['season'] == season]
+        wind_rose(df_season, wd, nbins=nbins, xticks=xticks, wind=wind, plot=plot,
+                  ylim=ylim, yaxis=yaxis, yticks=yticks)
+        plt.title(season + '\n', fontsize=14, fontweight='bold')
+
+    plt.tight_layout()
 
     return
