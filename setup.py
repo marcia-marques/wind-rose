@@ -9,9 +9,9 @@ setup(
     url='https://github.com/marcia-marques/wind-rose',
     packages=["windroses"],
     install_requires=[
-        "numpy >= 1.21",
+        "numpy >= 1.19.5",
         "matplotlib >= 3.2",
-        "pandas >= 1.3.1",
+        "pandas >= 1.1.5",
         "seaborn >= 0.11.1",
     ],
     )
