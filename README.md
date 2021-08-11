@@ -34,6 +34,20 @@ wr.wind_rose_season(df, 'wd', yaxis=67.5, yticks=[100, 300, 500, 700])
 ![image](https://user-images.githubusercontent.com/75334161/128647850-50fd6993-3456-4766-a4a3-6bba45ac1cb1.png)
 
 ```python
+plt.figure(figsize=(6, 6))
+yticks = [1.4, 2.8, 4.3, 5.7, 7.1 ]
+wr.wind_rose_scatter(df, 'ws', 'wd', yaxis=67.5, yticks=yticks)
+```
+![image](https://user-images.githubusercontent.com/75334161/129070691-f33bf7d7-227a-47a2-883d-b7075a99f7ba.png)
+
+```python
+plt.figure(figsize=(9, 9))
+yticks = [1.4, 2.8, 4.3, 5.7, 7.1 ]
+wr.wind_rose_scatter_season(df, 'ws', 'wd', yaxis=67.5, size=0.75, yticks=yticks)
+```
+![image](https://user-images.githubusercontent.com/75334161/129070716-52a2a762-4465-4746-9989-6ff42452dd59.png)
+
+```python
 plt.figure(figsize=(6,6))
 wr.wind_rose_speed(df, 'ws', 'wd', yaxis=67.5)
 ```
