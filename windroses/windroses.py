@@ -122,10 +122,10 @@ def wind_rose_season(df, wd, nbins=16, xticks=8, wind=True, south=True, ylim=Fal
         df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Winter', 2: 'Spring', 3: 'Summer', 4: 'Autumn'})
 
     # windroses
-    for plot, season in zip([221, 222, 223, 224], ['Summer', 'Autumn', 'Winter', 'Spring']):
+    for i, season in enumerate(df['season'].unique()):
         df_season = df.copy()
         df_season = df_season.loc[df_season['season'] == season]
-        wind_rose(df_season, wd, nbins=nbins, xticks=xticks, wind=wind, plot=plot,
+        wind_rose(df_season, wd, nbins=nbins, xticks=xticks, wind=wind, plot=221+i,
                   ylim=ylim, yaxis=yaxis, yticks=yticks)
         plt.title(season + '\n', fontsize=14, fontweight='bold')
 
@@ -292,10 +292,10 @@ def wind_rose_speed_season(df, ws, wd, nbins=16, xticks=8, wind=True, south=True
         df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Winter', 2: 'Spring', 3: 'Summer', 4: 'Autumn'})
 
     # windroses
-    for plot, season in zip([221, 222, 223, 224], ['Summer', 'Autumn', 'Winter', 'Spring']):
+    for i, season in enumerate(df['season'].unique()):
         df_season = df.copy()
         df_season = df_season.loc[df_season['season'] == season]
-        wind_rose_speed(df_season, ws, wd, nbins=nbins, xticks=xticks, wind=wind, plot=plot,
+        wind_rose_speed(df_season, ws, wd, nbins=nbins, xticks=xticks, wind=wind, plot=221+i,
                         ylim=ylim, yaxis=yaxis, yticks=yticks, lims=lims, loc=loc)
         plt.title(season + '\n', fontsize=14, fontweight='bold')
 
@@ -468,10 +468,10 @@ def wind_rose_pollution_season(df, var, ws, wd, var_label, nbins=16, xticks=8, z
         df['season'] = ((df.index.month % 12 + 3) // 3).map({1: 'Winter', 2: 'Spring', 3: 'Summer', 4: 'Autumn'})
 
     # windroses
-    for plot, season in zip([221, 222, 223, 224], ['Summer', 'Autumn', 'Winter', 'Spring']):
+    for i, season in enumerate(df['season'].unique()):
         df_season = df.copy()
         df_season = df_season.loc[df_season['season'] == season]
-        wind_rose_pollution(df_season, var, ws, wd, var_label, nbins=nbins, xticks=xticks, plot=plot,
+        wind_rose_pollution(df_season, var, ws, wd, var_label, nbins=nbins, xticks=xticks, plot=221+i,
                             z_values=z_values, wind=wind, yaxis=yaxis, lims=lims)
         plt.title(season + '\n', fontsize=14, fontweight='bold')
 
