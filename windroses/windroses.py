@@ -203,7 +203,7 @@ def wind_rose_speed(df, ws, wd, nbins=16, xticks=8, plot=111, wind=True, ylim=Fa
         ns[:, i] = n
 
     if np.sum(ns) != df.dir.count():
-        raise Exception("wind speed range does not cover all data")
+        print("Warning: wind speed range does not cover all data")
 
     # windrose
     ax = plt.subplot(plot, projection='polar')
