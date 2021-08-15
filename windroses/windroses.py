@@ -422,8 +422,8 @@ def wind_rose_speed_season(df, ws, wd, nbins=16, xticks=8, wind=True, south=True
     return
 
 
-def wind_rose_pollution(df, var, ws, wd, var_label, nbins=16, xticks=8, plot=111, z_values=None,
-                        wind=True, yaxis=False, lims=False):
+def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, xticks=8, plot=111,
+                        z_values=None, wind=True, yaxis=False, lims=False):
     """
     Return a wind rose for pollutant concentration.
 
@@ -439,6 +439,8 @@ def wind_rose_pollution(df, var, ws, wd, var_label, nbins=16, xticks=8, plot=111
         Wind direction column name.
     var_label : str
         Pollutant label.
+    cmap : str or Colormap
+        A Colormap instance or registered colormap name, default is 'viridis'.
     nbins : int, optional
         Number of bins to plot, default is 16.
     xticks : int {4, 8, 16} , optional
@@ -510,7 +512,8 @@ def wind_rose_pollution(df, var, ws, wd, var_label, nbins=16, xticks=8, plot=111
     else:
         cf = ax.pcolormesh(np.radians(bins),
                            lims, ns,
-                           shading='flat', zorder=0)
+                           shading='flat', zorder=0,
+                           cmap=cmap)
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
     cbar = plt.colorbar(cf, ax=ax, pad=0.1, shrink=0.75)
@@ -546,8 +549,8 @@ def wind_rose_pollution(df, var, ws, wd, var_label, nbins=16, xticks=8, plot=111
     return
 
 
-def wind_rose_pollution_season(df, var, ws, wd, var_label, nbins=16, xticks=8, z_values=None,
-                               wind=True, south=True, yaxis=False, lims=False):
+def wind_rose_pollution_season(df, var, ws, wd, var_label, cmap='viridis', nbins=16, xticks=8,
+                               z_values=None, wind=True, south=True, yaxis=False, lims=False):
     """
     Return a wind rose for pollutant concentration for each season.
 
@@ -563,6 +566,8 @@ def wind_rose_pollution_season(df, var, ws, wd, var_label, nbins=16, xticks=8, z
         Wind direction column name.
     var_label : str
         Pollutant label.
+    cmap : str or Colormap
+        A Colormap instance or registered colormap name, default is 'viridis'.
     nbins : int, optional
         Number of bins to plot, default is 16.
     xticks : int {4, 8, 16} , optional
@@ -589,8 +594,8 @@ def wind_rose_pollution_season(df, var, ws, wd, var_label, nbins=16, xticks=8, z
     for i, season in enumerate(df['season'].unique()):
         df_season = df.copy()
         df_season = df_season.loc[df_season['season'] == season]
-        wind_rose_pollution(df_season, var, ws, wd, var_label, nbins=nbins, xticks=xticks, plot=221+i,
-                            z_values=z_values, wind=wind, yaxis=yaxis, lims=lims)
+        wind_rose_pollution(df_season, var, ws, wd, var_label, cmap=cmap, nbins=nbins, xticks=xticks,
+                            plot=221+i, z_values=z_values, wind=wind, yaxis=yaxis, lims=lims)
         plt.title(season + '\n', fontsize=14, fontweight='bold')
 
     plt.tight_layout()
