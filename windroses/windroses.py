@@ -422,7 +422,7 @@ def wind_rose_speed_season(df, ws, wd, nbins=16, xticks=8, wind=True, south=True
     return
 
 
-def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, xticks=8, plot=111,
+def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, min_bin=1, xticks=8, plot=111,
                         z_values=None, wind=True, yaxis=False, lims=False):
     """
     Return a wind rose for pollutant concentration.
@@ -443,6 +443,9 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, xt
         A Colormap instance or registered colormap name, default is 'viridis'.
     nbins : int, optional
         Number of bins to plot, default is 16.
+    min_bin : int, optional
+        The minimum number of points allowed in a wind speed/wind
+        direction bin, default is 1.
     xticks : int {4, 8, 16} , optional
         Number of xticks, default is 8.
     plot : int, optional
@@ -494,7 +497,10 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, xt
         # wind direction bins
         for j in range(len(bins) - 1):
             ds = ds[(ds['dir'] >= bins[j]) & (ds['dir'] < bins[j + 1])]
-            ns[i, j] = ds[var].mean()
+            if ds[var].count() >= min_bin:
+                ns[i, j] = ds[var].mean()
+            else:
+                ns[i, j] = np.nan
             ds = df.copy()
             if i == len(lims) - 2:
                 ds = ds[(ds[ws] >= lims[i]) & (ds[ws] <= lims[i + 1])]
@@ -549,8 +555,8 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, xt
     return
 
 
-def wind_rose_pollution_season(df, var, ws, wd, var_label, cmap='viridis', nbins=16, xticks=8,
-                               z_values=None, wind=True, south=True, yaxis=False, lims=False):
+def wind_rose_pollution_season(df, var, ws, wd, var_label, cmap='viridis', nbins=16, min_bin=1,
+                               xticks=8, z_values=None, wind=True, south=True, yaxis=False, lims=False):
     """
     Return a wind rose for pollutant concentration for each season.
 
@@ -570,6 +576,9 @@ def wind_rose_pollution_season(df, var, ws, wd, var_label, cmap='viridis', nbins
         A Colormap instance or registered colormap name, default is 'viridis'.
     nbins : int, optional
         Number of bins to plot, default is 16.
+    min_bin : int, optional
+        The minimum number of points allowed in a wind speed/wind
+        direction bin, default is 1.
     xticks : int {4, 8, 16} , optional
         Number of xticks, default is 8.
     z_values : list-like, optional, default is None
@@ -594,8 +603,8 @@ def wind_rose_pollution_season(df, var, ws, wd, var_label, cmap='viridis', nbins
     for i, season in enumerate(df['season'].unique()):
         df_season = df.copy()
         df_season = df_season.loc[df_season['season'] == season]
-        wind_rose_pollution(df_season, var, ws, wd, var_label, cmap=cmap, nbins=nbins, xticks=xticks,
-                            plot=221+i, z_values=z_values, wind=wind, yaxis=yaxis, lims=lims)
+        wind_rose_pollution(df_season, var, ws, wd, var_label, cmap=cmap, nbins=nbins, min_bin=min_bin,
+                            xticks=xticks, plot=221+i, z_values=z_values, wind=wind, yaxis=yaxis, lims=lims)
         plt.title(season + '\n', fontsize=14, fontweight='bold')
 
     plt.tight_layout()
