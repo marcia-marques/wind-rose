@@ -422,8 +422,8 @@ def wind_rose_speed_season(df, ws, wd, nbins=16, xticks=8, wind=True, south=True
     return
 
 
-def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, min_bin=1, xticks=8, plot=111,
-                        z_values=None, wind=True, yaxis=False, lims=False):
+def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, min_bin=1, contrib=False,
+                        xticks=8, plot=111, z_values=None, wind=True, yaxis=False, lims=False):
     """
     Return a wind rose for pollutant concentration.
 
@@ -446,6 +446,10 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, mi
     min_bin : int, optional
         The minimum number of points allowed in a wind speed/wind
         direction bin, default is 1.
+    contrib : bool, optional
+        If true, return the percentage of contribution of each segment,
+        concentration of the pollutant weighted by wind speed/direction,
+        default is False.
     xticks : int {4, 8, 16} , optional
         Number of xticks, default is 8.
     plot : int, optional
@@ -499,6 +503,11 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, mi
             ds = ds[(ds['dir'] >= bins[j]) & (ds['dir'] < bins[j + 1])]
             if ds[var].count() >= min_bin:
                 ns[i, j] = ds[var].mean()
+                if contrib and min_bin == 1:
+                    weight = ds[var].mean() / df[(df[ws] > 0) | (~np.isnan(df[wd]))][var].mean()
+                    ns[i, j] = 100 * weight * ds[var].count() / df[(df[ws] > 0) | (~np.isnan(df[wd]))][var].count()
+                else:
+                    raise Exception("to use contrib option, min_bin must be 1")
             else:
                 ns[i, j] = np.nan
             ds = df.copy()
@@ -522,7 +531,7 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, mi
                            cmap=cmap)
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
-    cbar = plt.colorbar(cf, ax=ax, pad=0.1, shrink=0.75)
+    cbar = plt.colorbar(cf, ax=ax, pad=0.1, shrink=0.75, format='%.0f%%')
     cbar.set_label(var_label)
     ax.set_yticks(lims)
     bbox = dict(boxstyle="round", ec=None, fc="white", alpha=0.5)
@@ -555,7 +564,7 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, mi
     return
 
 
-def wind_rose_pollution_season(df, var, ws, wd, var_label, cmap='viridis', nbins=16, min_bin=1,
+def wind_rose_pollution_season(df, var, ws, wd, var_label, cmap='viridis', nbins=16, min_bin=1, contrib=False,
                                xticks=8, z_values=None, wind=True, south=True, yaxis=False, lims=False):
     """
     Return a wind rose for pollutant concentration for each season.
@@ -579,6 +588,10 @@ def wind_rose_pollution_season(df, var, ws, wd, var_label, cmap='viridis', nbins
     min_bin : int, optional
         The minimum number of points allowed in a wind speed/wind
         direction bin, default is 1.
+    contrib : bool, optional
+        If true, return the percentage of contribution of each segment,
+        concentration of the pollutant weighted by wind speed/direction,
+        default is False.
     xticks : int {4, 8, 16} , optional
         Number of xticks, default is 8.
     z_values : list-like, optional, default is None
@@ -603,7 +616,7 @@ def wind_rose_pollution_season(df, var, ws, wd, var_label, cmap='viridis', nbins
     for i, season in enumerate(df['season'].unique()):
         df_season = df.copy()
         df_season = df_season.loc[df_season['season'] == season]
-        wind_rose_pollution(df_season, var, ws, wd, var_label, cmap=cmap, nbins=nbins, min_bin=min_bin,
+        wind_rose_pollution(df_season, var, ws, wd, var_label, cmap=cmap, nbins=nbins, min_bin=min_bin, contrib=contrib,
                             xticks=xticks, plot=221+i, z_values=z_values, wind=wind, yaxis=yaxis, lims=lims)
         plt.title(season + '\n', fontsize=14, fontweight='bold')
 
