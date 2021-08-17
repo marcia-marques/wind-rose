@@ -502,12 +502,13 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, mi
         for j in range(len(bins) - 1):
             ds = ds[(ds['dir'] >= bins[j]) & (ds['dir'] < bins[j + 1])]
             if ds[var].count() >= min_bin:
-                ns[i, j] = ds[var].mean()
                 if contrib and min_bin == 1:
                     weight = ds[var].mean() / df[(df[ws] > 0) | (~np.isnan(df[wd]))][var].mean()
                     ns[i, j] = 100 * weight * ds[var].count() / df[(df[ws] > 0) | (~np.isnan(df[wd]))][var].count()
-                else:
+                elif contrib and min_bin > 1:
                     raise Exception("to use contrib option, min_bin must be 1")
+                else:
+                    ns[i, j] = ds[var].mean()
             else:
                 ns[i, j] = np.nan
             ds = df.copy()
@@ -532,7 +533,11 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, mi
                            cmap=cmap)
     ax.set_theta_zero_location('N')
     ax.set_theta_direction(-1)
-    cbar = plt.colorbar(cf, ax=ax, pad=0.1, shrink=0.75, format='%.0f%%')
+    if contrib:
+        tick_format = '%.0f%%'
+    else:
+        tick_format = None
+    cbar = plt.colorbar(cf, ax=ax, pad=0.1, shrink=0.75, format=tick_format)
     cbar.set_label(var_label)
     ax.set_yticks(lims)
     bbox = dict(boxstyle="round", ec=None, fc="white", alpha=0.5)
