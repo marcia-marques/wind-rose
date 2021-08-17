@@ -523,7 +523,8 @@ def wind_rose_pollution(df, var, ws, wd, var_label, cmap='viridis', nbins=16, mi
                            lims, ns,
                            shading='flat', zorder=0,
                            vmin=z_values[0],
-                           vmax=z_values[1])
+                           vmax=z_values[1],
+                           cmap=cmap)
     else:
         cf = ax.pcolormesh(np.radians(bins),
                            lims, ns,
